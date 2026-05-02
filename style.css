@@ -1,13 +1,12 @@
 body {
   margin: 0;
-
   height: 100vh;
-
-  display: grid;
-
-  place-items: center;
-
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   background: #ffffff;
+  font-family: Arial, sans-serif;
 }
 
 
@@ -15,4 +14,37 @@ canvas {
   background: #ad3333;
   
   border: 2px solid #550707;
+}
+
+#score-container {
+  display: flex;
+  justify-content: space-between;
+  width: 800px;
+  margin-bottom: 20px;
+}
+#score-container > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#score-container > div h1 {
+  margin: 0;
+}
+
+
+#game {
+  border: 2px solid white;
+}
+
+/* Canvas styling */
+canvas {
+  background: #222;
+  border: 2px solid #444;
+}
+
+#lives {
+  color: red;
+  font-size: 24px;
+  margin-left: 20px;
 }

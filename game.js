@@ -86,7 +86,6 @@ function loop() {
 
 
 /* ---------- Controls ---------- */
-/* ---------- Controls ---------- */
 window.addEventListener("keydown", (e) => {
   if (e.code === "Space" && gameState !== "gameover") {
     e.preventDefault();

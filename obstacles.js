@@ -1,10 +1,13 @@
-obstacles = [];
+let obstacles = [];
 let spawnTimer = 0;
 let spawnRate = 150;
 let scrollSpeed = 2;
 let gap = 200; // space between top and bottom pipes
 let score = 0;
 let newScore = 0;
+let coins = [];
+let lives = 3;
+let isInvisible = false;
 
 function init() {
   spawnTimer = 0;
@@ -13,6 +16,8 @@ function init() {
   gap = 200; // space between top and bottom pipes
   score = 0;
   newScore = 0;
+  lives = 3;
+  livesElmt.innerHTML = '&#9829;'.repeat(lives);
 }
 /* Create a new obstacle */
 function spawnObstacle() {
@@ -23,6 +28,17 @@ function spawnObstacle() {
     topHeight,
     gap
   });
+  // 50% chance to spawn a coin in the gap
+  if (Math.random() < 0.5) {
+    const coinY = topHeight + gap / 2 - 10; // Center in gap, coin size 20
+    coins.push({
+      x: canvas.width + 30, // Slightly ahead of pipe
+      y: coinY,
+      width: 20,
+      height: 20,
+      collected: false
+    });
+  }
 }
 
 /* Update obstacles */
@@ -38,7 +54,10 @@ function updateObstacles() {
 
   // Remove off-screen obstacles
   obstacles = obstacles.filter(o => o.x + o.width > 0);
-
+  coins.forEach(c => c.x -= scrollSpeed);
+  // Remove off-screen obstacles
+  obstacles = obstacles.filter(o => o.x + o.width > 0);
+  coins = coins.filter(c => c.x + c.width > 0 && !c.collected);
 }
 
 /* Draw obstacles */
@@ -64,6 +83,20 @@ function drawObstacles() {
 
   });
 
+   // Draw coins
+  ctx.fillStyle = 'gold';
+  coins.forEach(c => {
+    ctx.beginPath();
+    ctx.arc(c.x + c.width / 2, c.y + c.height / 2, c.width / 2, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.fillStyle = 'yellow';
+    ctx.beginPath();
+    ctx.arc(c.x + c.width / 2, c.y + c.height / 2, c.width / 2 - 2, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.fillStyle = 'gold';
+  });
+  
+
   obstacles.forEach(o => {
     if (!o.passed && o.x + o.width < player.x && player.y + player.height > o.topHeight && player.y < o.topHeight + o.gap) {
       o.passed = true;
@@ -85,9 +118,18 @@ function drawObstacles() {
       height: canvas.height
     };
 
-    if (isColliding(player, topPipe) ||
-      isColliding(player, bottomPipe)) {
-      gameState = "gameover";
+    if ((isColliding(player, topPipe) ||
+      isColliding(player, bottomPipe)) && !isInvisible) {
+      lives--;
+      isInvisible = true;
+      livesElmt.innerHTML = '&#9829;'.repeat(lives);
+      setTimeout(() => {
+        isInvisible = false;
+      }, 2000);
+    }
+    if (lives <= 0) {
+        gameState = "gameover";
+
     }
 
     if (newScore != score) {
@@ -102,11 +144,23 @@ function drawObstacles() {
     }
   });
 
+    // Check for coin collection
+  coins.forEach(c => {
+    if (!c.collected && isColliding(player, c)) {
+      c.collected = true;
+      score += 10; // Add points for collecting coin
+      scoreElmt.textContent = score;
+    }
+  });
 }
 
 const scoreElmt = document.getElementById('score');
 
 let gameState = "start game"; // start | playing | gameover
+var livesElmt = document.getElementById('lives');
+
+let gameState = "start"; // start | playing | gameover
+
 
 function isColliding(a, b) {
   return (
@@ -117,8 +171,4 @@ function isColliding(a, b) {
   );
 
   }
-});
 
-}
-
-const scoreElmt = document.getElementById('score');
